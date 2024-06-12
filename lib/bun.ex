@@ -170,8 +170,15 @@ defmodule Bun do
   # process. The wrapper script monitors stdin to ensure that the bun process is closed.
   defp run_bun_command(["build" | _] = args, opts) do
     wrapper_path = Path.join(:code.priv_dir(:bun), "wrapper.js")
+    mywrapper = Path.expand("_build/myexec")
 
-    System.cmd(bin_path(), [wrapper_path, bin_path()] ++ args, opts)
+    if File.exists?(mywrapper) do
+      mywrapper
+      |> System.cmd([bin_path() | args], opts)
+    else
+      bin_path()
+      |> System.cmd([wrapper_path, bin_path()] ++ args, opts)
+    end
   end
 
   # Other commands such as `bun run` don't leave zombie processes and can be run directly.
