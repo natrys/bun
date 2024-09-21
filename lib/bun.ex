@@ -207,7 +207,10 @@ defmodule Bun do
 
     download_path =
       case :zip.unzip(zip, cwd: to_charlist(tmp_dir)) do
-        {:ok, download_path} -> download_path
+        {:ok, paths} ->
+          paths
+          |> Enum.filter(fn path -> Path.basename(path) == "bun" && not File.dir?(path) end)
+          |> hd()
         other -> raise "couldn't unpack archive: #{inspect(other)}"
       end
 
